@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
+  <meta name="theme-color" content="#0c4a6e">
+  <title>همبازی - کنترلر</title>
+  <script type="module" crossorigin src="/hambazi/assets/controller-CxT6r4h0.js"></script>
+  <link rel="modulepreload" crossorigin href="/hambazi/assets/modulepreload-polyfill-B5Qt9EMX.js">
+  <link rel="modulepreload" crossorigin href="/hambazi/assets/theme-registry-CiclUM8b.js">
+  <link rel="modulepreload" crossorigin href="/hambazi/assets/howler-DacRvduY.js">
+  <link rel="modulepreload" crossorigin href="/hambazi/assets/utils-CtiNnZvt.js">
+  <link rel="modulepreload" crossorigin href="/hambazi/assets/royal-runtime-QLtZnz0H.js">
+  <link rel="modulepreload" crossorigin href="/hambazi/assets/motion-DDD15XlJ.js">
+  <link rel="stylesheet" crossorigin href="/hambazi/assets/theme-registry-DbPABWOA.css">
+</head>
+<body class="controller-body">
+  <div id="app" class="controller-app-shell flex flex-col">
+    <!-- Loading State -->
+    <div id="loading" class="hb-system-status flex-1 flex flex-col items-center justify-center p-4">
+      <div class="hb-system-status-content">
+        <div class="hb-system-spinner animate-spin rounded-full h-12 w-12 border-4 border-primary-500 border-t-transparent mb-4"></div>
+        <p class="text-gray-400">در حال اتصال...</p>
+      </div>
+    </div>
+
+    <!-- Join Screen -->
+    <div id="join" class="hidden hb-entry-screen">
+      <div class="hb-entry-card">
+        <div class="hb-entry-brand">
+          <span>HB</span>
+          <div>
+            <h1 data-polish-copy="CONTROLLER_JOIN_TITLE">ورود به بازی</h1>
+            <p data-polish-copy="CONTROLLER_JOIN_SUBTITLE">کد اتاق، اسم، و آواتارت را انتخاب کن.</p>
+          </div>
+        </div>
+
+        <button id="controller-sound-toggle" type="button" class="hb-sound-toggle hb-sound-toggle-light">صدا روشن</button>
+
+        <div>
+          <label class="hb-entry-label" for="room-code-input" data-polish-copy="CONTROLLER_ROOM_CODE">کد اتاق</label>
+          <input type="text" id="room-code-input" class="input text-center text-2xl tracking-widest uppercase"
+                 placeholder="ABCD" maxlength="4" autocomplete="off" autocapitalize="characters">
+        </div>
+
+        <div>
+          <label class="hb-entry-label" for="player-name-input" data-polish-copy="CONTROLLER_PLAYER_NAME">اسم شما</label>
+          <input type="text" id="player-name-input" class="input" placeholder="مثلاً: علی" maxlength="20">
+        </div>
+
+        <div>
+          <label class="hb-entry-label" data-polish-copy="CONTROLLER_AVATAR">آواتار</label>
+          <div id="avatar-picker" class="avatar-picker" role="radiogroup" aria-label="انتخاب آواتار"></div>
+        </div>
+
+        <button id="join-btn" class="hb-primary-button w-full" data-polish-copy="CONTROLLER_JOIN_BUTTON">
+          ورود
+        </button>
+
+        <p id="join-error" class="hb-entry-error hidden" role="alert"></p>
+      </div>
+    </div>
+
+    <!-- Lobby Screen -->
+    <div id="lobby" class="hidden hb-entry-screen">
+      <div class="hb-entry-card hb-lobby-card">
+        <button id="controller-lobby-sound-toggle" type="button" class="hb-sound-toggle hb-sound-toggle-light">صدا روشن</button>
+        <div class="player-avatar hb-lobby-avatar" id="my-avatar"></div>
+        <p class="hb-lobby-name" id="my-name"></p>
+        <p id="controller-lobby-status" class="hb-lobby-status">منتظر آماده شدن گروه...</p>
+
+        <div id="controller-lobby-owner-controls" class="hb-lobby-owner-controls hidden">
+          <div class="hb-lobby-mode-label">حالت محتوا</div>
+          <div class="hb-lobby-mode-options" role="group" aria-label="حالت محتوا">
+            <button type="button" data-lobby-mode="family">خانوادگی</button>
+            <button type="button" data-lobby-mode="friends">دوستانه</button>
+            <button type="button" data-lobby-mode="wild">بی‌پرده</button>
+          </div>
+          <p id="controller-start-hint" class="hb-lobby-start-hint">حداقل ۲ بازیکن لازم است</p>
+          <button id="controller-start-button" type="button" class="hb-primary-button w-full" disabled>
+            شروع بازی
+          </button>
+        </div>
+
+        <div id="controller-lobby-wait" class="hb-lobby-wait" aria-hidden="true">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Game: Waiting for Subject -->
+    <div id="waiting-subject" class="hidden flex-1 flex flex-col items-center justify-center p-6">
+      <p class="text-xl text-gray-300 mb-2">منتظر</p>
+      <p class="text-2xl font-bold text-primary-400" id="subject-name-wait"></p>
+      <p class="text-gray-400 mt-2">که جوابش رو بده...</p>
+
+      <div class="mt-8 controller-wait-mark" aria-hidden="true"></div>
+    </div>
+
+    <!-- Game: Subject Answering -->
+    <div id="subject-answer" class="hidden flex-1 flex flex-col p-4">
+      <div class="text-center mb-6">
+        <p class="text-primary-400 text-lg">نوبت شماست!</p>
+        <p class="text-gray-400">جواب خودت رو انتخاب کن</p>
+      </div>
+
+      <div class="flex items-center justify-center mb-4">
+        <span id="subject-timer" class="timer mr-2">15</span>
+      </div>
+
+      <div id="subject-buttons" class="flex-1 grid grid-cols-1 gap-3"></div>
+    </div>
+
+    <!-- Game: Guessing -->
+    <div id="guessing" class="hidden flex-1 flex flex-col p-4 overflow-hidden">
+      <div id="knowme-guess-header" class="text-center mb-6 flex-shrink-0">
+        <p class="text-lg">حدس بزنید</p>
+        <p class="text-xl font-bold text-primary-400" id="guess-subject-name"></p>
+        <p class="text-gray-400">چی انتخاب کرده؟</p>
+      </div>
+
+      <div id="knowme-guess-timer" class="flex items-center justify-center mb-4 flex-shrink-0">
+        <span id="guess-timer" class="timer mr-2">20</span>
+      </div>
+
+      <div id="guess-buttons" class="flex-1 grid grid-cols-1 gap-3 overflow-hidden"></div>
+    </div>
+
+    <!-- Game: Answer Submitted -->
+    <div id="answer-submitted" class="hidden flex-1 flex flex-col items-center justify-center p-6">
+      <div class="w-20 h-20 rounded-full bg-green-500 flex items-center justify-center text-4xl mb-4">
+        ثبت شد
+      </div>
+      <p class="text-xl font-bold">جواب شما ثبت شد!</p>
+      <p class="text-gray-400 mt-2">منتظر بقیه...</p>
+    </div>
+
+    <!-- Game: Reveal Result -->
+    <div id="reveal" class="hidden flex-1 flex flex-col items-center justify-center p-6">
+      <div id="reveal-icon" class="w-24 h-24 rounded-full flex items-center justify-center text-5xl mb-4"></div>
+      <p id="reveal-text" class="text-2xl font-bold mb-2"></p>
+      <p id="reveal-points" class="text-xl text-primary-400"></p>
+      <p id="reveal-fastest" class="text-yellow-400 mt-2 hidden">سریع‌ترین!</p>
+
+      <div class="mt-8 text-gray-400">
+        <p>امتیاز کل: <span id="total-score" class="text-white font-bold">0</span></p>
+      </div>
+    </div>
+
+    <!-- Results Screen -->
+    <div id="results" class="hidden flex-1 flex flex-col items-center justify-center p-6">
+      <h2 class="text-2xl font-bold text-primary-400 mb-4">نتایج</h2>
+
+      <div id="my-result" class="card w-full max-w-xs text-center mb-6">
+        <p class="text-3xl mb-2" id="my-rank"></p>
+        <p class="text-xl font-bold" id="my-final-score"></p>
+      </div>
+
+      <p class="text-gray-400">منتظر میزبان برای ادامه...</p>
+    </div>
+
+    <!-- Board Game Controller -->
+    <div id="board-controller" class="hidden flex-1 min-h-0 flex flex-col overflow-hidden">
+      <!-- Concept-aligned phone app bar -->
+      <div class="board-status-panel flex-shrink-0">
+        <div id="board-status-text" class="board-cue">منتظر...</div>
+      </div>
+
+      <div id="board-controller-stage" class="hb-controller-stage">
+        <!-- Waiting Screen -->
+        <div id="board-waiting" class="flex-1 min-h-0 flex items-center justify-center overflow-hidden">
+          <div class="board-action-card">
+            <div class="board-waiting-visual" aria-hidden="true"></div>
+            <p class="board-action-title">منتظر باش...</p>
+          </div>
+        </div>
+
+        <!-- Roll Dice Button -->
+        <button id="board-roll-button" class="hidden board-primary-action flex-shrink-0">تاس بزن!</button>
+
+        <button id="board-continue-button" class="hidden board-primary-action flex-shrink-0">ادامه</button>
+
+        <!-- Simultaneous finish tie-break -->
+        <button id="board-tiebreak-button" class="hidden board-primary-action flex-shrink-0">تاس نهایی را بنداز</button>
+
+        <!-- Challenge -->
+        <div id="board-challenge" class="hidden board-action-card flex-1 min-h-0 flex flex-col overflow-hidden">
+          <div class="board-challenge-header flex justify-between items-center mb-2">
+            <span id="board-challenge-category" class="px-3 py-1 rounded-full text-sm font-bold"></span>
+            <span id="board-challenge-timer" class="text-2xl font-bold">۱۰</span>
+          </div>
+          <h3 id="board-challenge-question" class="board-challenge-question text-lg sm:text-xl font-bold text-center mb-2"></h3>
+          <div id="board-challenge-options" class="board-action-grid flex-1 min-h-0"></div>
+        </div>
+
+        <!-- Challenge Result -->
+        <div id="board-challenge-result" class="hidden board-action-card flex-1 min-h-0 flex flex-col items-center justify-center overflow-hidden">
+          <div id="board-challenge-result-icon" class="text-6xl mb-4"></div>
+          <p id="board-challenge-result-text" class="text-2xl font-bold mb-2"></p>
+          <p id="board-challenge-result-detail" class="text-xl text-primary-400"></p>
+        </div>
+
+        <div id="board-attention-overlay" class="board-attention-overlay hidden" role="status" aria-live="polite">
+          <span id="board-attention-icon" class="board-attention-icon"></span>
+          <strong id="board-attention-label">تلویزیون</strong>
+          <p id="board-attention-detail">الان به تلویزیون نگاه کن</p>
+        </div>
+      </div>
+
+      <!-- Personal footer -->
+      <div class="board-personal-footer flex-shrink-0">
+        <div class="board-personal-row">
+          <div id="board-player-position" class="board-position-chip">خانه: ۰ / ۳۰</div>
+          <div class="board-controller-utilities" aria-label="تنظیمات دسترس‌پذیری">
+            <button id="controller-game-sound-toggle" type="button" class="hb-utility-button hb-sound-toggle">صدا روشن</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div id="error" class="hidden hb-system-status flex-1 flex flex-col items-center justify-center p-6">
+      <div class="hb-system-status-content">
+        <p class="text-red-500 text-xl mb-4" id="error-message">خطا</p>
+        <button onclick="location.reload()" class="btn-primary">دوباره تلاش کنید</button>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
+

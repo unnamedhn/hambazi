@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0c4a6e">
+  <title>همبازی - میزبان</title>
+  <script type="module" crossorigin src="/hambazi/assets/hostRuntime-Csx01rxH.js"></script>
+  <link rel="modulepreload" crossorigin href="/hambazi/assets/modulepreload-polyfill-B5Qt9EMX.js">
+  <link rel="modulepreload" crossorigin href="/hambazi/assets/theme-registry-CiclUM8b.js">
+  <link rel="modulepreload" crossorigin href="/hambazi/assets/howler-DacRvduY.js">
+  <link rel="modulepreload" crossorigin href="/hambazi/assets/utils-CtiNnZvt.js">
+  <link rel="modulepreload" crossorigin href="/hambazi/assets/royal-runtime-QLtZnz0H.js">
+  <link rel="stylesheet" crossorigin href="/hambazi/assets/theme-registry-DbPABWOA.css">
+</head>
+<body class="host-runtime-body min-h-screen">
+  <div id="app" class="min-h-screen">
+    <!-- Loading State -->
+    <div id="loading" class="hb-system-status h-screen flex flex-col items-center justify-center">
+      <div class="hb-system-status-content">
+        <div class="hb-system-spinner hb-system-spinner-large animate-spin rounded-full h-16 w-16 border-4 border-primary-500 border-t-transparent mb-4"></div>
+        <p class="text-gray-400">در حال اتصال و ساخت اتاق...</p>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div id="error" class="hidden hb-system-status h-screen flex flex-col items-center justify-center p-4">
+      <div class="hb-system-status-content">
+        <p class="text-red-500 text-xl mb-4" id="error-message">خطا در اتصال</p>
+        <button onclick="location.reload()" class="btn-primary">دوباره تلاش کنید</button>
+      </div>
+    </div>
+
+    <!-- Lobby Screen -->
+    <div id="lobby" class="hidden host-lobby-shell">
+      <header class="host-lobby-topbar">
+        <div>
+          <div id="game-title" class="host-lobby-title" data-theme-brand="titleFa">هم‌بازی</div>
+          <div id="host-lobby-tagline" class="host-lobby-subtitle" data-theme-brand="taglineFa">شب بازی دورهمی</div>
+        </div>
+        <div class="host-lobby-controls">
+          <button id="host-sound-toggle" type="button" class="hb-sound-toggle">صدا روشن</button>
+          <div class="host-lobby-player-count">
+            <span id="player-count">0</span>
+            <span>بازیکن</span>
+          </div>
+        </div>
+      </header>
+
+      <main class="host-lobby-main">
+        <section class="host-lobby-join-card" aria-label="کد ورود به اتاق">
+          <div class="host-lobby-code-label" data-polish-copy="HOST_ROOM_CODE">کد اتاق</div>
+          <div id="room-code" class="room-code">----</div>
+          <div id="qr-container" class="host-lobby-qr">
+            <canvas id="qr-code"></canvas>
+            <p data-polish-copy="HOST_SCAN_CODE">با موبایل اسکن کنید</p>
+          </div>
+        </section>
+
+        <section class="host-lobby-players-card">
+          <div class="host-lobby-section-heading">
+            <div class="host-lobby-section-title" data-polish-copy="HOST_PLAYERS">بازیکن‌ها</div>
+            <div id="host-royal-hall" class="host-royal-hall" hidden>
+              <div id="host-royal-summary" class="host-royal-summary"></div>
+              <details id="host-royal-details" class="host-royal-details">
+                <summary>تالار پادشاهان</summary>
+                <div id="host-royal-history-list" class="host-royal-history-list"></div>
+                <button id="host-royal-clear" type="button" class="host-royal-clear">پاک کردن تاریخچه</button>
+              </details>
+            </div>
+          </div>
+          <div id="players-list" class="host-lobby-player-grid"></div>
+        </section>
+      </main>
+
+      <footer class="host-lobby-actionbar">
+        <div class="host-content-mode" role="group" aria-label="حالت محتوا">
+          <span>محتوا</span>
+          <div class="host-content-mode-options" id="content-mode-picker">
+            <button type="button" data-content-mode="family">خانوادگی</button>
+            <button type="button" data-content-mode="friends">دوستانه</button>
+            <button type="button" data-content-mode="wild">بی‌پرده</button>
+          </div>
+        </div>
+        <p id="start-hint" class="host-lobby-start-hint">حداقل ۲ بازیکن لازم است</p>
+        <button id="start-btn" class="host-lobby-start-button" disabled>
+          شروع بازی
+        </button>
+      </footer>
+    </div>
+    <!-- Subject Select Screen -->
+    <div id="subject-select" class="hidden min-h-screen flex flex-col items-center justify-center p-4">
+      <h2 class="text-2xl font-bold text-primary-400 mb-4">انتخاب سوژه</h2>
+      <p class="text-gray-400 mb-8">کی قراره جواب بده؟</p>
+      <div id="subject-options" class="flex flex-wrap gap-4 justify-center max-w-2xl"></div>
+    </div>
+
+    <!-- Transition/Loading Screen -->
+    <div id="transition" class="hidden h-screen flex flex-col items-center justify-center p-4">
+      <div class="host-transition-card">
+        <div class="host-transition-mark" aria-hidden="true"></div>
+        <p id="transition-text" class="text-xl text-gray-300">در حال آماده‌سازی...</p>
+      </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="game" class="hidden min-h-screen flex flex-col p-4">
+      <!-- Header -->
+      <div class="flex justify-between items-center mb-6">
+        <div class="phase-badge" id="question-counter">سوال ۱ از ۱۰</div>
+        <div class="flex items-center gap-2">
+          <span id="timer" class="timer">15</span>
+        </div>
+      </div>
+
+      <!-- Phase Info -->
+      <div class="text-center mb-6">
+        <p id="phase-text" class="text-xl text-gray-300"></p>
+        <p id="phase-subtext" class="text-gray-500"></p>
+      </div>
+
+      <!-- Question -->
+      <div class="text-center mb-8">
+        <p id="question-text" class="text-2xl md:text-3xl font-bold"></p>
+      </div>
+
+      <!-- Options Grid -->
+      <div id="options-grid" class="grid grid-cols-2 gap-4 max-w-2xl mx-auto w-full mb-8"></div>
+
+      <!-- Players Status -->
+      <div class="mt-auto">
+        <div id="players-status" class="flex flex-wrap gap-3 justify-center"></div>
+        <p id="status-text" class="text-center text-gray-500 mt-2"></p>
+      </div>
+    </div>
+
+    <!-- Results Screen -->
+    <div id="results" class="hidden min-h-screen flex flex-col items-center justify-center p-4">
+      <h2 class="text-3xl font-bold text-primary-400 mb-2">نتایج</h2>
+      <p id="winner-text" class="text-xl text-gray-300 mb-8"></p>
+
+      <div id="scoreboard" class="w-full max-w-md space-y-3 mb-8"></div>
+
+      <div class="flex gap-4">
+        <button id="new-subject-btn" class="btn-primary">سوژه جدید</button>
+        <button id="exit-btn" class="btn-secondary" onclick="window.top.location.href='../'">خروج</button>
+      </div>
+    </div>
+
+    <!-- Board Game Screen -->
+    <div id="board-game" class="hidden board-host-shell h-screen-safe min-h-0 overflow-hidden">
+      <header class="board-host-topbar">
+        <div class="board-host-logo">
+          <div id="board-brand-name" class="board-host-logo-name" data-theme-brand="titleFa">هم‌بازی</div>
+          <div id="board-brand-tagline" class="board-host-logo-sub" data-theme-brand="taglineFa">شب بازی دورهمی</div>
+        </div>
+        <div id="board-turn-indicator" class="board-host-turn-badge">نوبت: ...</div>
+        <div id="board-player-info" class="board-host-current-identity"></div>
+        <div id="board-dice-display" class="board-host-action-chip hidden" role="status" aria-live="polite">
+          <span>نتیجه تاس</span><strong>—</strong>
+        </div>
+        <div class="board-host-utility-controls">
+          <button id="host-board-sound-toggle" type="button" class="hb-sound-toggle hb-sound-toggle-board">صدا روشن</button>
+        </div>
+      </header>
+
+      <main class="board-main-stage">
+        <svg id="board-lanes" class="board-lane-stage" role="img" aria-label="مسیر مسابقه هم‌بازی" aria-describedby="board-summary" preserveAspectRatio="xMidYMid meet"></svg>
+        <div id="board-space-info" class="board-host-position-chip hidden"></div>
+        <p id="board-summary" class="sr-only" aria-live="polite">بازی در حال آماده‌سازی است.</p>
+      </main>
+
+      <!-- Challenge Display -->
+      <div id="board-challenge" class="hidden board-host-overlay">
+        <div class="board-host-modal board-host-modal-wide text-center">
+          <div class="board-host-modal-meta flex justify-between items-center gap-3">
+            <span id="challenge-category" class="board-host-category-pill"></span>
+            <span id="challenge-timer" class="board-host-timer">۱۰</span>
+          </div>
+          <h3 id="challenge-question" class="board-host-modal-title"></h3>
+          <div id="challenge-options" class="board-host-options"></div>
+          <div id="challenge-answers-status" class="board-host-waiting-status"></div>
+        </div>
+      </div>
+
+      <!-- Challenge Results Display -->
+      <div id="board-challenge-results" class="hidden board-host-overlay">
+        <div class="board-host-modal board-host-modal-wide text-center">
+          <h3 class="board-host-modal-title">نتیجه چالش</h3>
+          <p id="challenge-correct-answer" class="text-xl text-teal-700 mb-6"></p>
+          <div id="challenge-results-list" class="space-y-3"></div>
+        </div>
+      </div>
+
+      <!-- Final Results -->
+      <div id="board-final-results" class="hidden"></div>
+    </div>
+  </div>
+
+  <script>
+    // This classic-script watchdog also runs when the application module does
+    // not. Report the actual startup stage instead of blaming every slow load
+    // on browser compatibility.
+    window.__hambaziHostBoot = { stage: 'html', ready: false };
+    if (window.parent !== window) {
+      window.parent.postMessage('hambazi:host-runtime-dom-ready', window.location.origin);
+    }
+    window.__hambaziHostLoadingWatchdog = function () {
+      var loading = document.getElementById('loading');
+      if (!loading || loading.classList.contains('hidden')) return;
+      var error = document.getElementById('error');
+      var message = document.getElementById('error-message');
+      var stage = window.__hambaziHostBoot && window.__hambaziHostBoot.stage;
+      loading.classList.add('hidden');
+      if (message) {
+        message.textContent = stage === 'html'
+          ? 'برنامه در مرورگر تلویزیون اجرا نشد. Chrome را به‌روز کنید یا صفحه را روی لپ‌تاپ باز کنید.'
+          : stage === 'connecting-relay'
+            ? 'اتصال به سرور بازی برقرار نشد. اجرای npm run dev و اتصال شبکه را بررسی کنید.'
+            : 'سرور پاسخ داد اما اتاق ساخته نشد. صفحه را تازه کنید و دوباره تلاش کنید.';
+      }
+      if (error) error.classList.remove('hidden');
+    };
+    // connect() may retry for 15 seconds and createRoom() has a separate
+    // 10-second deadline, so this final safety net must be longer than both.
+    window.setTimeout(window.__hambaziHostLoadingWatchdog, 30000);
+  </script>
+</body>
+</html>

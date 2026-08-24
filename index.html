@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0c4a6e">
+  <title>همبازی - بازی‌های گروهی فارسی</title>
+  <script type="module" crossorigin src="/hambazi/assets/main-D1yNCKkV.js"></script>
+  <link rel="modulepreload" crossorigin href="/hambazi/assets/modulepreload-polyfill-B5Qt9EMX.js">
+  <link rel="modulepreload" crossorigin href="/hambazi/assets/theme-registry-CiclUM8b.js">
+  <link rel="stylesheet" crossorigin href="/hambazi/assets/theme-registry-DbPABWOA.css">
+</head>
+<body class="landing-body">
+  <main class="landing-shell">
+    <header class="landing-header">
+      <div class="landing-brand-mark" aria-hidden="true">HB</div>
+      <div>
+        <h1 data-theme-brand="titleFa">هم‌بازی</h1>
+        <p data-theme-brand="taglineFa">شب بازی دورهمی</p>
+      </div>
+    </header>
+
+    <!-- Game Selection -->
+    <section id="game-selection" class="landing-games">
+      <div class="landing-section-title" data-polish-copy="LANDING_SELECT_GAME">انتخاب بازی</div>
+      <div id="games-grid" class="landing-games-grid">
+        <!-- Keep the primary game usable even if the first JavaScript module
+             request is delayed or unsupported by a TV browser. main.ts
+             enhances and replaces this fallback after it loads. -->
+        <a
+          class="landing-game-card game-card"
+          data-game-id="board"
+          href="./host/host.html?game=board"
+        >
+          <div class="landing-game-icon">HB</div>
+          <div class="landing-game-copy">
+            <h3 data-theme-brand="titleFa">هم‌بازی</h3>
+            <p>مسابقهٔ گروهی روی مسیر ۳۰ خانه‌ای با بازی‌های کوتاه</p>
+          </div>
+          <div class="landing-game-meta">
+            <span><strong>2-8</strong> بازیکن</span>
+            <span><strong>30</strong> دقیقه</span>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- Action Buttons -->
+    <section id="action-buttons" class="landing-actions hidden">
+      <a id="btn-create" href="./host/host.html?game=board" class="landing-action-button is-primary">
+        <span class="hb-css-icon is-plus" aria-hidden="true"></span>
+        <span data-polish-copy="LANDING_CREATE_GAME">ساخت بازی جدید</span>
+      </a>
+      <a href="./controller/controller.html" class="landing-action-button is-secondary">
+        <span class="hb-css-icon is-phone" aria-hidden="true"></span>
+        <span data-polish-copy="LANDING_JOIN_GAME">ورود به بازی</span>
+      </a>
+    </section>
+
+    <section class="landing-help">
+      <div data-polish-copy="LANDING_HELP_SELECT">یکی از بازی‌ها را انتخاب کن</div>
+      <div data-polish-copy="LANDING_HELP_HOST">روی تلویزیون یا لپ‌تاپ بازی بساز</div>
+      <div data-polish-copy="LANDING_HELP_JOIN">بقیه با گوشی وارد می‌شوند</div>
+    </section>
+  </main>
+
+</body>
+</html>
