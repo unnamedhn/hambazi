@@ -4,14 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#0c4a6e">
-  <title>همبازی - کنترلر</title>
-  <script type="module" crossorigin src="/hambazi/assets/controller-BncOF0fw.js"></script>
+  <title>همبازی - کنترلر</title>
+  <script type="module" crossorigin src="/hambazi/assets/controller-DiWh0Df8.js"></script>
   <link rel="modulepreload" crossorigin href="/hambazi/assets/modulepreload-polyfill-B5Qt9EMX.js">
-  <link rel="modulepreload" crossorigin href="/hambazi/assets/theme-registry-BNXgcGF6.js">
-  <link rel="modulepreload" crossorigin href="/hambazi/assets/utils-kcsRnXbH.js">
-  <link rel="modulepreload" crossorigin href="/hambazi/assets/royal-runtime-D8sPwZGB.js">
-  <link rel="modulepreload" crossorigin href="/hambazi/assets/motion-DDD15XlJ.js">
-  <link rel="stylesheet" crossorigin href="/hambazi/assets/theme-registry-BAIdM2tP.css">
+  <link rel="modulepreload" crossorigin href="/hambazi/assets/theme-registry-B-ymQaNS.js">
+  <link rel="modulepreload" crossorigin href="/hambazi/assets/utils-B-zlAPKk.js">
+  <link rel="modulepreload" crossorigin href="/hambazi/assets/royal-runtime-BlTGN9kw.js">
+  <link rel="modulepreload" crossorigin href="/hambazi/assets/motion-DojXN92N.js">
+  <link rel="stylesheet" crossorigin href="/hambazi/assets/theme-registry-DFDYbMgV.css">
 </head>
 <body class="controller-body">
   <div id="controller-connection-status" class="hb-connection-status hidden" role="status" aria-live="polite">
@@ -70,6 +70,38 @@
         <div class="player-avatar hb-lobby-avatar" id="my-avatar"></div>
         <p class="hb-lobby-name" id="my-name"></p>
         <p id="controller-lobby-status" class="hb-lobby-status">منتظر آماده شدن گروه...</p>
+
+        <div class="hb-lobby-teach" id="controller-general-teach">
+          <p>نوبتت که شد، تاس بنداز و یک بازی انتخاب کن. توی بازی‌ها امتیاز بگیر تا جلو بری. هرکس زودتر به تخت برسد، پادشاه است.</p>
+          <div class="hb-attention-legend" aria-label="راهنمای توجه">
+            <span>گوشی: انتخاب خصوصی</span><span>تلویزیون: نتیجهٔ مشترک</span><span>جمع: واکنش و اجرا</span>
+          </div>
+          <button id="controller-teach-seen" type="button" class="hb-secondary-button">فهمیدم / بلدم</button>
+        </div>
+        <button id="controller-teach-open" type="button" class="hb-link-button hidden">راهنمای کوتاه</button>
+
+        <fieldset class="hb-comfort-choice">
+          <legend>محتوای راحت برای من</legend>
+          <button type="button" data-comfort-level="warm" aria-pressed="true">گرم و عمومی</button>
+          <button type="button" data-comfort-level="personal" aria-pressed="false">کمی شخصی</button>
+        </fieldset>
+        <label class="hb-safety-confirm"><input id="controller-safety-confirm" type="checkbox"> این سطح برای من مناسب است و می‌دانم هر سؤال را می‌توانم رد کنم.</label>
+        <button id="controller-ready-button" type="button" class="hb-primary-button w-full">آماده‌ام</button>
+        <fieldset id="recall-consent-controls" class="hidden hb-comfort-choice">
+          <legend>یادآوری اختیاری همین جلسه</legend>
+          <label class="hb-input-meta" style="display:flex;gap:8px;align-items:start"><input id="recall-opt-in" type="checkbox"><span>اجازه می‌دهم جواب‌های علنی من و اتفاق‌های علنی مربوط به من، فقط همین جلسه در بازی یادآوری پرسیده شوند. خاموش بودن مانع بازی نیست؛ بعداً می‌توانم خصوصی لغوش کنم.</span></label>
+          <button id="recall-consent-save" type="button" class="hb-secondary-button">ثبت انتخاب خصوصی</button>
+          <p id="recall-consent-status" role="status">اختیاری و در آغاز خاموش است.</p>
+        </fieldset>
+        <fieldset id="mission-consent-controls" class="hidden hb-comfort-choice">
+          <legend>مأموریت اختیاری — جدا از آمادگی برای بازی</legend>
+          <p>ممکن است دعوت دوستانهٔ کوچکی بین دورها ببینی. رأی تو خصوصی است؛ هر مخالفتی این لایه را برای همین جلسه خاموش می‌کند. بازی اصلی ادامه دارد.</p>
+          <label><input id="mission-task-opt-in" type="checkbox"> اگر جمع موافق بود، برای خودم کارت اختیاری می‌خواهم.</label>
+          <button type="button" data-mission-consent="yes">با وجود این لایه موافقم</button>
+          <button type="button" data-mission-consent="no">این لایه را نمی‌خواهم</button>
+          <p id="mission-consent-status" role="status"></p>
+        </fieldset>
+        <p id="controller-ready-status" class="hb-lobby-start-hint">هنوز آماده نیستی</p>
 
         <div id="controller-lobby-owner-controls" class="hb-lobby-owner-controls hidden">
           <div class="hb-lobby-mode-label">حالت محتوا</div>
@@ -171,6 +203,11 @@
       </div>
 
       <div id="board-controller-stage" class="hb-controller-stage">
+        <button id="board-help-button" type="button" class="board-help-button hidden" aria-expanded="false">راهنمای بازی</button>
+        <div id="board-help-panel" class="board-help-panel hidden" role="dialog" aria-label="راهنمای بازی">
+          <button id="board-help-close" type="button" aria-label="بستن راهنما">×</button>
+          <div id="board-help-content"></div>
+        </div>
         <!-- Waiting Screen -->
         <div id="board-waiting" class="flex-1 min-h-0 flex items-center justify-center overflow-hidden">
           <div class="board-action-card">
@@ -217,11 +254,16 @@
           <div id="board-player-position" class="board-position-chip">خانه: ۰ / ۳۰</div>
           <div class="board-controller-utilities" aria-label="تنظیمات دسترس‌پذیری">
             <button id="controller-game-sound-toggle" type="button" class="hb-utility-button hb-sound-toggle">صدا روشن</button>
+            <button id="mission-drawer-button" type="button" class="hb-utility-button" hidden>مأموریت اختیاری</button>
+            <button id="reuse-revoke-button" type="button" class="hb-utility-button" hidden>لغو یادآوری جواب‌هایم</button>
+            <button id="hook-safety-button" type="button" class="hb-utility-button" aria-controls="hook-safety-drawer" aria-expanded="false" hidden>رد امن این نوبت</button>
           </div>
         </div>
       </div>
     </div>
 
+    <div id="mission-drawer" hidden style="position:fixed;inset-inline:12px;bottom:64px;z-index:60;background:var(--hb-paper,#fff6df);color:#172432;border-radius:12px;border:1px solid #ac8751;box-shadow:0 6px 28px #0006"></div>
+    <div id="hook-safety-drawer" hidden role="region" aria-label="کنارگذاشتن امن کارت" style="position:fixed;inset-inline:12px;bottom:64px;z-index:60;max-height:45vh;overflow:auto;padding:12px;background:var(--hb-paper,#fff6df);color:#172432;border-radius:12px;border:1px solid #ac8751;box-shadow:0 6px 28px #0006"></div>
     <!-- Error State -->
     <div id="error" class="hidden hb-system-status flex-1 flex flex-col items-center justify-center p-6">
       <div class="hb-system-status-content">
@@ -230,7 +272,7 @@
       </div>
     </div>
   </div>
-
+
 </body>
 </html>
 
